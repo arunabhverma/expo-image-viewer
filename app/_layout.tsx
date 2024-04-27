@@ -15,9 +15,13 @@ export default function AppLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeProvider value={theme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
+          <Stack
+            screenOptions={{
+              headerLargeTitle: true,
+              headerTransparent: true,
+              headerBlurEffect: themes,
+            }}
+          />
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
