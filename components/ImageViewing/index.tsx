@@ -33,8 +33,6 @@ type Props = {
   initialImageIndex: number;
   visible: boolean;
   onRequestClose: () => void;
-  onTapFire?: (id: boolean) => void;
-  activeIndex?: (id: number) => void;
   backgroundColor?: string;
   HeaderComponent?: ComponentType<{ imageIndex: number }>;
   FooterComponent?: ComponentType<{ imageIndex: number }>;
@@ -46,8 +44,6 @@ function ImageViewing({
   images,
   initialImageIndex,
   visible,
-  activeIndex,
-  onTapFire,
   onRequestClose,
   backgroundColor = DEFAULT_BG_COLOR,
   HeaderComponent,
@@ -57,18 +53,6 @@ function ImageViewing({
   const [isDragging, setIsDragging] = useState(false);
   const [imageIndex, setImageIndex] = useState(initialImageIndex);
   const [showControls, setShowControls] = useState(true);
-
-  useEffect(() => {
-    if (activeIndex) {
-      activeIndex(imageIndex);
-    }
-  }, [imageIndex]);
-
-  useEffect(() => {
-    if (onTapFire) {
-      onTapFire(showControls);
-    }
-  }, [showControls]);
 
   const animatedHeaderStyle = useAnimatedStyle(() => ({
     pointerEvents: showControls ? "auto" : "none",
@@ -119,6 +103,7 @@ function ImageViewing({
       accessibilityViewIsModal
     >
       <View style={[styles.container, { backgroundColor }]}>
+        {/* <View style={styles.container}> */}
         <Animated.View style={[styles.header, animatedHeaderStyle]}>
           {typeof HeaderComponent !== "undefined" ? (
             React.createElement(HeaderComponent, {
@@ -176,7 +161,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#000",
   },
   pager: {
     flex: 1,

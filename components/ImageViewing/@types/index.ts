@@ -7,13 +7,13 @@
  */
 
 export type Dimensions = {
-  width: number
-  height: number
-}
+  width: number;
+  height: number;
+};
 
 export type Position = {
-  x: number
-  y: number
-}
+  x: number;
+  y: number;
+};
 
-export type ImageSource = {uri: string; alt?: string}
+export type ImageSource = { uri: string; alt?: string };

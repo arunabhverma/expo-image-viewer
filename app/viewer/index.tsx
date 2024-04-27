@@ -1,86 +1,69 @@
-import { Alert, Platform, StyleSheet, Text, View } from "react-native";
-import React, { useEffect, useLayoutEffect } from "react";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import {
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useColorScheme,
+} from "react-native";
+import React, { memo } from "react";
 import ImageView from "../../components/ImageViewing";
-import Constants from "expo-constants";
-import { StatusBar } from "expo-status-bar";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { BlurView } from "expo-blur";
+import { AntDesign } from "@expo/vector-icons";
 
-const Viewer = () => {
-  const navigation = useNavigation();
-  const { images, index } = useLocalSearchParams();
-  const parseImages = JSON.parse(images);
-
-  const statusbarHeight = StatusBar;
-  const statusBarHeight = Constants.statusBarHeight;
-  const headerHeight = useHeaderHeight();
-
-  const Header = ({ imageIndex }) => {
+const Viewer = ({ images, onClose, initialImageIndex }) => {
+  console.log("images", images);
+  const HeaderComponent = ({ imageIndex }) => {
     return (
-      <View
+      <SafeAreaView
         style={{
-          width: "100%",
-          justifyContent: "center",
+          flexDirection: "row",
+          justifyContent: "space-between",
           alignItems: "center",
-          marginTop: headerHeight + statusBarHeight / 2,
+          marginHorizontal: 20,
         }}
       >
+        <View style={{ flex: 1 }} />
         <BlurView
-          pointerEvents="none"
-          intensity={Platform.OS === "ios" ? 100 : 0}
-          tint="dark"
-          style={styles.blurHeaderView}
+          style={{
+            flex: 1,
+            alignItems: "center",
+            borderRadius: 100,
+            overflow: "hidden",
+            padding: 5,
+          }}
+          tint={"dark"}
+          intensity={Platform.select({ android: 0, ios: 100 })}
         >
-          <Text style={styles.headerText}>
-            {imageIndex + 1}
-            {" of "}
-            {parseImages.length}
-          </Text>
+          <Text style={{ color: "white" }}>Hello world {imageIndex}</Text>
         </BlurView>
-      </View>
+        <View style={{ flex: 1, alignItems: "flex-end" }}>
+          <TouchableOpacity
+            style={[styles.closeButton]}
+            onPress={() => {}}
+            hitSlop={16}
+          >
+            <AntDesign name="close" size={22} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     );
   };
-
-  const Footer = ({ imageIndex }) => {
-    return (
-      <View
-        style={{
-          width: "100%",
-          height: 100,
-        }}
-      >
-        <BlurView
-          pointerEvents="none"
-          intensity={Platform.OS === "ios" ? 100 : 0}
-          tint="dark"
-          style={{ flex: 1 }}
-        ></BlurView>
-      </View>
-    );
-  };
-
   return (
     <View style={{ flex: 1 }}>
       <ImageView
-        images={parseImages}
-        initialImageIndex={+index}
-        onTapFire={(e) => {
-          navigation.setOptions({ headerShown: e });
-        }}
-        activeIndex={(e) => {
-          navigation.setOptions({ title: parseImages[e].filename });
-        }}
+        images={images}
+        initialImageIndex={initialImageIndex}
         visible
-        onRequestClose={() => {}}
-        HeaderComponent={({ imageIndex }) => <Header imageIndex={imageIndex} />}
-        FooterComponent={({ imageIndex }) => <Footer imageIndex={imageIndex} />}
+        HeaderComponent={HeaderComponent}
+        onRequestClose={onClose}
       />
     </View>
   );
 };
 
-export default Viewer;
+export default memo(Viewer);
 
 const styles = StyleSheet.create({
   blurHeaderView: {
@@ -97,5 +80,15 @@ const styles = StyleSheet.create({
   headerText: {
     fontWeight: "600",
     color: "white",
+  },
+  closeButton: {
+    // marginRight: 10,
+    // marginTop: 10,
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 22,
+    backgroundColor: "#00000077",
   },
 });
