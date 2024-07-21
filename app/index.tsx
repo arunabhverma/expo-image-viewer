@@ -1,25 +1,25 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Button,
   Text,
-  SafeAreaView,
-  ScrollView,
   StyleSheet,
   Image,
   View,
-  Platform,
-  Pressable,
   FlatList,
   Modal,
+  Dimensions,
 } from "react-native";
 import * as MediaLibrary from "expo-media-library";
+import { StatusBar } from "expo-status-bar";
 import { useTheme } from "@react-navigation/native";
-import { useRouter } from "expo-router";
-import Viewer from "./viewer";
+import { PlatformPressable } from "@react-navigation/elements";
+import ImageViewing from "../lightbox/ImageViewing";
+
+const WIDTH = Dimensions.get("window").width;
+const COLUMNS = 4;
+const GAP = 3;
 
 const AlbumEntry = ({ album, setModal }) => {
   const theme = useTheme();
-  const router = useRouter();
   const [assets, setAssets] = useState([]);
 
   useEffect(() => {
@@ -31,39 +31,30 @@ const AlbumEntry = ({ album, setModal }) => {
   }, [album]);
 
   return (
-    <View key={album.id} style={styles.albumContainer}>
-      <Text style={{ color: theme.colors.text }}>
-        {album.title} - {album.assetCount ?? "no"} assets
+    <View key={album.id}>
+      <Text style={[styles.albumTitle, { color: theme.colors.text }]}>
+        {album.title}
       </Text>
-      <View style={styles.albumAssetsContainer}>
-        <FlatList
-          numColumns={5}
-          scrollEnabled={false}
-          data={assets}
-          keyExtractor={(_, i) => i.toString()}
-          renderItem={({ item: asset, index }) => (
-            <Pressable
-              key={index.toString()}
-              onPress={
-                () => setModal({ index, assets })
-                // router.push({
-                //   pathname: "/viewer",
-                //   params: {
-                //     index: index,
-                //     images: JSON.stringify(assets),
-                //   },
-                // })
-              }
-              android_ripple={{
-                foreground: true,
-                color: "rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              <Image source={{ uri: asset.uri }} width={50} height={50} />
-            </Pressable>
-          )}
-        />
-      </View>
+      <FlatList
+        numColumns={COLUMNS}
+        scrollEnabled={false}
+        data={assets}
+        columnWrapperStyle={styles.columnWrapper}
+        keyExtractor={(_, i) => i.toString()}
+        renderItem={({ item: asset, index }) => (
+          <PlatformPressable
+            key={index.toString()}
+            style={styles.pressable}
+            onPress={() => setModal({ index, assets })}
+            android_ripple={{
+              foreground: true,
+              color: "rgba(0,0,0,0.2)",
+            }}
+          >
+            <Image source={{ uri: asset.uri }} style={{ flex: 1 }} />
+          </PlatformPressable>
+        )}
+      />
     </View>
   );
 };
@@ -87,13 +78,11 @@ const App = () => {
     getAlbums();
   }, []);
 
-  console.log("state", isModal);
-
   return (
     <View style={{ flex: 1 }}>
       <FlatList
         data={albums}
-        contentInsetAdjustmentBehavior="automatic"
+        overScrollMode="always"
         keyExtractor={(_, i) => i.toString()}
         renderItem={({ item: album, index: key }) => (
           <AlbumEntry
@@ -106,14 +95,19 @@ const App = () => {
       <Modal
         animationType="slide"
         transparent
+        statusBarTranslucent
         visible={Boolean(isModal)}
         onRequestClose={() => setIsModal(null)}
       >
-        <Viewer
-          images={isModal?.assets}
-          onClose={() => setIsModal(null)}
-          initialImageIndex={isModal?.index}
-        />
+        <StatusBar style="light" backgroundColor="transparent" translucent />
+        {isModal && (
+          <ImageViewing
+            visible={Boolean(isModal)}
+            images={isModal?.assets}
+            onRequestClose={() => setIsModal(null)}
+            initialImageIndex={isModal?.index}
+          />
+        )}
       </Modal>
     </View>
   );
@@ -122,98 +116,18 @@ const App = () => {
 export default App;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    gap: 8,
-    justifyContent: "center",
+  albumTitle: {
+    fontSize: 14,
+    fontWeight: "500",
+    margin: 15,
+    marginBottom: 10,
   },
-  albumContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 12,
-    gap: 4,
+  columnWrapper: {
+    gap: GAP,
   },
-  albumAssetsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+  pressable: {
+    width: WIDTH / COLUMNS - ((COLUMNS - 1) * GAP) / COLUMNS,
+    marginTop: GAP,
+    aspectRatio: 1,
   },
 });
-
-// import React, { memo, useEffect, useState } from "react";
-// import {
-//   FlatList,
-//   Modal,
-//   Pressable,
-//   ScrollView,
-//   StyleSheet,
-//   View,
-//   useWindowDimensions,
-// } from "react-native";
-// import { Image } from "expo-image";
-// import { SafeAreaView } from "react-native-safe-area-context";
-// import { ImageData } from "../mock/IMAGES";
-// import Viewer from "./viewer";
-
-// const Home = () => {
-//   const { width } = useWindowDimensions();
-//   const [state, setState] = useState({
-//     imageData: ImageData,
-//     isModal: null,
-//     likedIndex: [],
-//   });
-
-//   const renderItem = ({ item, index }) => {
-//     let imageWidth = width / 2;
-
-//     let aspectRatio = item.width / item.height;
-//     const imageHeight = imageWidth / aspectRatio;
-
-//     return (
-//       <View
-//         style={{
-//           width: "100%",
-//           height: imageHeight,
-//           borderRadius: 15,
-//           overflow: "hidden",
-//         }}
-//       >
-//         <Pressable
-//           onPress={() => setState((prev) => ({ ...prev, isModal: index }))}
-//         >
-//           <Image
-//             source={{ uri: item.uri }}
-//             style={{ width: "100%", height: imageHeight }}
-//           />
-//         </Pressable>
-//       </View>
-//     );
-//   };
-
-//   return (
-//     <SafeAreaView style={{ flex: 1 }} edges={["right", "left"]}>
-//       <FlatList
-//         data={state.imageData}
-//         keyExtractor={(i) => i.id}
-//         renderItem={renderItem}
-//         contentInsetAdjustmentBehavior="automatic"
-//       />
-//       <Modal
-//         animationType="slide"
-//         transparent
-//         visible={Boolean(state.isModal)}
-//         onRequestClose={() => setState((prev) => ({ ...prev, isModal: null }))}
-//       >
-//         <Viewer
-//           images={state.imageData}
-//           onClose={() => setState((prev) => ({ ...prev, isModal: null }))}
-//           initialImageIndex={state.isModal}
-//         />
-//       </Modal>
-//     </SafeAreaView>
-//   );
-// };
-
-// export default memo(Home);
-
-// const styles = StyleSheet.create({
-//   containerStyle: {},
-// });
