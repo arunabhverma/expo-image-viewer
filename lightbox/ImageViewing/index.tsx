@@ -8,13 +8,7 @@
 // Original code copied and simplified from the link below as the codebase is currently not maintained:
 // https://github.com/jobtoday/react-native-image-viewing
 
-import React, {
-  ComponentType,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { ComponentType, useCallback, useMemo, useState } from "react";
 import { StyleSheet, View, Platform } from "react-native";
 
 import ImageItem from "./components/ImageItem/ImageItem";
@@ -25,8 +19,13 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
-import { Edge, SafeAreaView } from "react-native-safe-area-context";
+import {
+  Edge,
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import PagerView from "react-native-pager-view";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 type Props = {
   images: ImageSource[];
@@ -49,6 +48,8 @@ function ImageViewing({
   HeaderComponent,
   FooterComponent,
 }: Props) {
+  const { top } = useSafeAreaInsets();
+
   const [isScaled, setIsScaled] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [imageIndex, setImageIndex] = useState(initialImageIndex);
@@ -96,15 +97,15 @@ function ImageViewing({
   }
 
   return (
-    <SafeAreaView
-      style={styles.screen}
-      edges={edges}
+    <View
+      style={StyleSheet.absoluteFillObject}
       aria-modal
       accessibilityViewIsModal
     >
       <View style={[styles.container, { backgroundColor }]}>
-        {/* <View style={styles.container}> */}
-        <Animated.View style={[styles.header, animatedHeaderStyle]}>
+        <Animated.View
+          style={[styles.header, { top: top }, animatedHeaderStyle]}
+        >
           {typeof HeaderComponent !== "undefined" ? (
             React.createElement(HeaderComponent, {
               imageIndex,
@@ -139,15 +140,8 @@ function ImageViewing({
             </View>
           ))}
         </PagerView>
-        {typeof FooterComponent !== "undefined" && (
-          <Animated.View style={[styles.footer, animatedFooterStyle]}>
-            {React.createElement(FooterComponent, {
-              imageIndex,
-            })}
-          </Animated.View>
-        )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -161,9 +155,11 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    backgroundColor: "#000",
   },
   pager: {
     flex: 1,
+    backgroundColor: "#000",
   },
   header: {
     position: "absolute",
@@ -181,7 +177,9 @@ const styles = StyleSheet.create({
 });
 
 const EnhancedImageViewing = (props: Props) => (
-  <ImageViewing key={props.initialImageIndex} {...props} />
+  <GestureHandlerRootView style={{ flex: 1 }}>
+    <ImageViewing key={props.initialImageIndex} {...props} />
+  </GestureHandlerRootView>
 );
 
 function withClampedSpring(value: any) {

@@ -12,23 +12,33 @@ import {
   StyleSheet,
   ViewStyle,
 } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
+// import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome'
+import { Ionicons } from "@expo/vector-icons";
+// import {msg} from '@lingui/macro'
+// import {useLingui} from '@lingui/react'
+
+// import {createHitslop} from '#/lib/constants'
 
 type Props = {
   onRequestClose: () => void;
 };
 
-const HIT_SLOP = 16;
+// const HIT_SLOP = createHitslop(16)
 
 const ImageDefaultHeader = ({ onRequestClose }: Props) => {
+  // const {_} = useLingui()
   return (
     <SafeAreaView style={styles.root}>
       <TouchableOpacity
         style={[styles.closeButton, styles.blurredBackground]}
         onPress={onRequestClose}
-        hitSlop={HIT_SLOP}
+        // hitSlop={HIT_SLOP}
+        accessibilityRole="button"
+        // accessibilityLabel={_(msg`Close image`)}
+        // accessibilityHint={_(msg`Closes viewer for header image`)}
+        onAccessibilityEscape={onRequestClose}
       >
-        <AntDesign name="close" size={22} color="#fff" />
+        <Ionicons name="close" size={22} color="#fff" />
       </TouchableOpacity>
     </SafeAreaView>
   );

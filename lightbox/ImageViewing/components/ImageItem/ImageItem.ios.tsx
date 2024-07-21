@@ -14,11 +14,11 @@ import Animated, {
   interpolate,
   runOnJS,
   useAnimatedRef,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
-  useAnimatedScrollHandler,
 } from "react-native-reanimated";
-// export { useAnimatedScrollHandler } from "react-native-reanimated";
+// import {useAnimatedScrollHandler} from '#/lib/hooks/useAnimatedScrollHandler_FIXED'
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 import useImageDimensions from "../../hooks/useImageDimensions";
